@@ -1,0 +1,135 @@
+/**
+ * @file configmanager.h
+ * @brief Implements reading of settings specified in the form of a json file
+ */
+#ifndef CONFIGMANAGER_H
+#define CONFIGMANAGER_H
+
+#include <variant>
+#include <nlohmann/json.hpp>
+#include <fstream>
+#include <filesystem>
+#include "logger.h"
+
+/**
+ * @namespace nConfigManager
+ * @brief Contains class ConfigManager and structs: ConfigServer, ConfigClient
+ */
+namespace nConfigManager {
+
+/**
+ * @struct ConfigServer
+ * @brief Describes the server settings configuration 
+ * 
+ * Contains the following fields:
+ * - type - has two meanings: (server or Server) and (client or Client)
+ *  (for this option (server or Server) should be used) (In your config name parameter: type)
+ * - UDP IP (In your config name parameter: udp_ip)
+ * - UDP port (In your config name parameter: udp_port)
+ * - Session timeout sec (In your config name parameter: session_timeout_sec)
+ * - CDR file (In your config name parameter: cdr_file)
+ * - HTTP port (In your config name parameter: http_port)
+ * - Graceful shutdown rate (In your config name parameter: graceful_shutdown_rate)
+ * - Directory log file (In your config name parameter: dir_log_file)
+ * - Name log file (In your config name parameter: log_file)
+ * - Log level (In your config name parameter: log_level)
+ * - Blacklist (In your config name parameter: blacklist)
+ */
+struct ConfigServer
+{
+    std::string type;
+    std::string udpIp;
+    int udpPort;
+    int sessionTimeoutSec;
+    std::string cdrFile;
+    int httpPort;
+    int gracefulShutdownRate;
+    std::string dirLogFile;
+    std::string logFile;
+    std::string logLevel; // ???
+    std::vector<std::string> blacklist;
+};
+
+/**
+ * @struct ConfigClient
+ * @brief Describes the client settings configuration 
+ * 
+ * Contains the following fields:
+ * - type - has two meanings: (server or Server) and (client or Client)
+ *  (for this option (client or Client) should be used) (In your config name parameter: type)
+ * - Server IP (In your config name parameter: server_ip)
+ * - Server port (In your config name parameter: server_port)
+ * - Directory log file (In your config name parameter: dir_log_file)
+ * - Name log file (In your config name parameter: log_file)
+ * - Log level (In your config name parameter: log_level)
+ */
+struct ConfigClient
+{
+    std::string type;
+    std::string serverIp;
+    int serverPort;
+    std::string dirLogFile;
+    std::string logFile;
+    std::string logLevel; // ???
+};
+
+
+/**
+ * @class ConfigManager
+ * @brief Implements reading of settings for the client and server
+ */
+class ConfigManager {
+
+public:
+    // Constructor. Need for get logger
+    ConfigManager(std::shared_ptr<spdlog::logger> logger);
+    
+    /**
+     * @brief Reads a json file with settings
+     * 
+     * @param path - The path where the configuration is located
+     * @return true if the data was processed successfully 
+     * @return false if the data was not processed successfully
+     */
+    bool load(const std::string& path);
+
+    /**
+     * @brief Getting the required configuration according to the configuration file
+     * 
+     * @tparam T - Two types of configuration: ConfigServer and ConfigClient
+     * @return const T& we return the specified configuration
+     */
+    template <typename T>
+    const T& get() const {
+        return std::get<T>(config);
+    }  
+
+private:
+    std::variant<ConfigClient, ConfigServer> config;
+    std::shared_ptr<spdlog::logger> logger;
+
+    bool createConfigurationForServer(const nlohmann::json& data);
+    bool createConfigurationForClient(const nlohmann::json& data);
+
+    template <typename FieldType, typename NameStruct>
+    bool ConfigManager::getParameterFromJson(const nlohmann::json& data,
+                                             const std::string name,
+                                             const std::string nameParameter,
+                                             NameStruct& serverOrClient,
+                                             FieldType NameStruct::*field) {
+        if (data.contains(nameParameter)) {
+            serverOrClient.*field = data[nameParameter].get<FieldType>();
+            logger->debug("The {} parameter required for {} configuration has been read",
+                           nameParameter, name); 
+            return true;
+        }
+        logger->critical("The {} parameter required for {} configuration was not found",
+                          nameParameter, name);
+        return false;
+    }
+
+}; // nConfigManager
+
+}
+
+#endif // CONFIGMANAGER_H

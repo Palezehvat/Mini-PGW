@@ -42,4 +42,4 @@ namespace nLogger {
         }
         return logger;
     }
-}
+} // nLogger
