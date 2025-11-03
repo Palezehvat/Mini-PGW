@@ -44,7 +44,7 @@ public:
      * @param fileForLogs - log file name
      */
     static void init(const std::string& nameLogger, const std::string& pathDir,
-                     const std::string& fileForLogs);
+                     const std::string& fileForLogs, const bool& isNeedCleanLogFile = false);
     /**
      * @brief Get the Logger object
      * @return std::shared_ptr<spdlog::logger> 

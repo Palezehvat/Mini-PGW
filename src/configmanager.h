@@ -30,9 +30,6 @@ namespace nConfigManager {
  * - CDR file (In your config name parameter: cdr_file)
  * - HTTP port (In your config name parameter: http_port)
  * - Graceful shutdown rate (In your config name parameter: graceful_shutdown_rate)
- * - Directory log file (In your config name parameter: dir_log_file)
- * - Name log file (In your config name parameter: log_file)
- * - Log level (In your config name parameter: log_level)
  * - Blacklist (In your config name parameter: blacklist)
  */
 struct ConfigServer
@@ -44,9 +41,6 @@ struct ConfigServer
     std::string cdrFile;
     int httpPort;
     int gracefulShutdownRate;
-    std::string dirLogFile;
-    std::string logFile;
-    std::string logLevel; // ???
     std::vector<std::string> blacklist;
 };
 
@@ -59,18 +53,12 @@ struct ConfigServer
  *  (for this option (client or Client) should be used) (In your config name parameter: type)
  * - Server IP (In your config name parameter: server_ip)
  * - Server port (In your config name parameter: server_port)
- * - Directory log file (In your config name parameter: dir_log_file)
- * - Name log file (In your config name parameter: log_file)
- * - Log level (In your config name parameter: log_level)
  */
 struct ConfigClient
 {
     std::string type;
     std::string serverIp;
     int serverPort;
-    std::string dirLogFile;
-    std::string logFile;
-    std::string logLevel; // ???
 };
 
 
@@ -88,10 +76,8 @@ public:
      * @brief Reads a json file with settings
      * 
      * @param path - The path where the configuration is located
-     * @return true if the data was processed successfully 
-     * @return false if the data was not processed successfully
      */
-    bool load(const std::string& path);
+    void load(const std::string& path);
 
     /**
      * @brief Getting the required configuration according to the configuration file
@@ -108,11 +94,11 @@ private:
     std::variant<ConfigClient, ConfigServer> config;
     std::shared_ptr<spdlog::logger> logger;
 
-    bool createConfigurationForServer(const nlohmann::json& data);
-    bool createConfigurationForClient(const nlohmann::json& data);
+    void createConfigurationForServer(const nlohmann::json& data);
+    void createConfigurationForClient(const nlohmann::json& data);
 
     template <typename FieldType, typename NameStruct>
-    bool ConfigManager::getParameterFromJson(const nlohmann::json& data,
+    void getParameterFromJson(const nlohmann::json& data,
                                              const std::string name,
                                              const std::string nameParameter,
                                              NameStruct& serverOrClient,
@@ -120,12 +106,13 @@ private:
         if (data.contains(nameParameter)) {
             serverOrClient.*field = data[nameParameter].get<FieldType>();
             logger->debug("The {} parameter required for {} configuration has been read",
-                           nameParameter, name); 
-            return true;
+                           nameParameter, name);
+            return;
         }
         logger->critical("The {} parameter required for {} configuration was not found",
                           nameParameter, name);
-        return false;
+        throw std::runtime_error("The " + nameParameter + " parameter required for "
+                               + name + " configuration was not found");
     }
 
 }; // nConfigManager
