@@ -11,6 +11,19 @@ UdpServer::UdpServer(const nConfigManager::ConfigServer& config,
         throw std::runtime_error("Socket creation failed: " + std::string(strerror(errno)));
     }
 
+    cdr = std::make_shared<nCDRManager::CDRManager>(
+        logger,
+        config.cdrFile
+    );
+
+    sessionManager = std::make_shared<nSessionManager::SessionManager>(
+        logger,
+        cdr,
+        config.sessionTimeoutSec,
+        config.blacklist
+    );
+
+
     memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(config.udpPort);
@@ -60,12 +73,27 @@ void UdpServer::listenLoop() {
         if (!imsi.empty() && std::isspace(static_cast<unsigned char>(imsi.back()))) {
             imsi.pop_back();
         }
+
+        if (!running) {
+            sessionManager->stopAllSessions();
+            break;
+        }
+
         logger->info("Received IMSI={} from {}:{}",
                      imsi,
                      inet_ntoa(clientAddr.sin_addr),
                      ntohs(clientAddr.sin_port));
-
-        std::string response = "created\n";
+        std::string response = "";
+        try {
+            if (sessionManager->createSession(imsi)) {
+                response = "created\n";
+            } else {
+                response = "rejected\n";
+            }
+        } catch (const std::exception& e) {
+            logger->error("Problem creating session. Error: {}", std::string(e.what()));
+        }
+        if (response == "") response = "rejected\n";
         sendto(udpSocket, response.c_str(), response.size(), 0,
               (sockaddr*)&clientAddr, sizeClientAddr);
         logger->info("Send to {}:{} that session created", inet_ntoa(clientAddr.sin_addr),

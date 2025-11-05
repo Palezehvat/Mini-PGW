@@ -1,6 +1,8 @@
 add_executable(servermain
     main.cpp
     udpserver.cpp
+    session.cpp
+    cdr.cpp
 )
 
 target_include_directories(servermain PUBLIC 

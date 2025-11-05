@@ -14,7 +14,7 @@ void signalHandler(int signal) {
 
 int main() {
     std::string pathToConfig = "examples/server/configs/config1.json"; // After to args
-    std::string pathToLogs = "examples/server/logs"; // After to args
+    std::string pathToLogs = "examples/server/logs/1"; // After to args
     std::string fileLogs = "logs1.txt"; // After to args
     const bool isNeedClearLogFile = true; // After to args
     try {
@@ -42,7 +42,6 @@ int main() {
         logger->info("Start stopping UDP server");
 
         server.stop();
-
         return 0;
     } catch (const std::exception& e) {
         std::cout << "There's a problem with the server. Error: " << e.what() << std::endl;

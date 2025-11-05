@@ -17,6 +17,8 @@
 #include <atomic>
 #include "configmanager.h"
 #include "logger.h"
+#include "session.h"
+#include "cdr.h"
 
 /**
  * @namespace nUdpServer
@@ -52,6 +54,8 @@ private:
     nConfigManager::ConfigServer config;
     std::atomic<bool> running{false};
     std::thread listenerThread;
+    std::shared_ptr<nSessionManager::SessionManager> sessionManager;
+    std::shared_ptr<nCDRManager::CDRManager> cdr;
 
     void listenLoop();
 };
