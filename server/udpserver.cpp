@@ -2,8 +2,13 @@
 
 namespace nUdpServer {
 
-UdpServer::UdpServer(const nConfigManager::ConfigServer& config,
-                     std::shared_ptr<spdlog::logger> logger) : config(config), logger(logger) {
+UdpServer::UdpServer(int port,
+                     std::string ip,
+                     std::shared_ptr<spdlog::logger> logger,
+                     std::shared_ptr<nSessionManager::SessionManager> sessionManager,
+                     std::shared_ptr<std::atomic<bool>> running) 
+                     : port(port), ip(ip), logger(logger), sessionManager(sessionManager),
+                       running(running), localRunning(true) {
     logger->debug("UDP server start initialization");
     udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
     if (udpSocket < 0) {
@@ -11,31 +16,18 @@ UdpServer::UdpServer(const nConfigManager::ConfigServer& config,
         throw std::runtime_error("Socket creation failed: " + std::string(strerror(errno)));
     }
 
-    cdr = std::make_shared<nCDRManager::CDRManager>(
-        logger,
-        config.cdrFile
-    );
-
-    sessionManager = std::make_shared<nSessionManager::SessionManager>(
-        logger,
-        cdr,
-        config.sessionTimeoutSec,
-        config.blacklist
-    );
-
-
     memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(config.udpPort);
+    serverAddr.sin_port = htons(port);
 
-    if (inet_pton(AF_INET, config.udpIp.c_str(), &serverAddr.sin_addr) <= 0) {
+    if (inet_pton(AF_INET, ip.c_str(), &serverAddr.sin_addr) <= 0) {
         close(udpSocket);
-        logger->critical("Invalid ip address: {}. Error: {}", config.udpIp, strerror(errno));
-        throw std::runtime_error("Invalid ip address: " + config.udpIp 
+        logger->critical("Invalid ip address: {}. Error: {}", ip, strerror(errno));
+        throw std::runtime_error("Invalid ip address: " + ip 
                                + ". Error: " + strerror(errno));
     }
 
-    logger->info("UDP socket created on {} : {}", config.udpIp, config.udpPort);
+    logger->info("UDP socket created on {} : {}", ip, port);
 }
 
 void UdpServer::start() {
@@ -47,8 +39,6 @@ void UdpServer::start() {
 
     logger->debug("Success to bind socket");
 
-    running = true;
-
     listenerThread = std::thread(&UdpServer::listenLoop, this);
 }
 
@@ -59,7 +49,7 @@ void UdpServer::listenLoop() {
 
     logger->info("UDP server started and waiting for data");
 
-    while (running) {
+    while (localRunning) {
         ssize_t sizeRecvFrom = recvfrom(udpSocket, buffer, sizeof(buffer), 
                                     0, (sockaddr*)&clientAddr, &sizeClientAddr);
         if (sizeRecvFrom < 0) {
@@ -74,9 +64,16 @@ void UdpServer::listenLoop() {
             imsi.pop_back();
         }
 
-        if (!running) {
-            sessionManager->stopAllSessions();
-            break;
+        if (!(*running)) {
+            if (!imsi.empty()) {
+                std::string response = "rejected\n";
+                logger->info("Trying to create a new session after shut down. IMSI = {}. "
+                             "The response sent was rejected", imsi);
+                sessionManager->addRecordForRejectSessionAfterShutdown(imsi);
+                sendto(udpSocket, response.c_str(), response.size(), 0,
+                  (sockaddr*)&clientAddr, sizeClientAddr);
+            }
+            continue;
         }
 
         logger->info("Received IMSI={} from {}:{}",
@@ -103,21 +100,23 @@ void UdpServer::listenLoop() {
 }
 
 void UdpServer::stop() {
-    if (!running) return;
-    running = false;
+    if ((*running)) return;
+
+    localRunning.store(false);
 
     sockaddr_in selfAddr{};
     selfAddr.sin_family = AF_INET;
-    selfAddr.sin_port = htons(config.udpPort);
-    if (inet_pton(AF_INET, config.udpIp.c_str(), &selfAddr.sin_addr) < 0) {
+    selfAddr.sin_port = htons(port);
+    if (inet_pton(AF_INET, ip.c_str(), &selfAddr.sin_addr) < 0) {
         close(udpSocket);
-        logger->critical("Trying to stop server. Invalid ip address: {}. Error: {}",
-                          config.udpIp, strerror(errno));
+        logger->critical("Trying to stop UDP server. Invalid ip address: {}. Error: {}",
+                          ip, strerror(errno));
         throw std::runtime_error("Trying to stop server. Invalid ip address: "
-                                + config.udpIp
+                                + ip
                                 + ". Error: "
                                 + strerror(errno));
     }
+    logger->debug("Sending an empty UDP packet to close recvfrom");
     sendto(udpSocket, "", 0, 0, (sockaddr*)&selfAddr, sizeof(selfAddr));
 
     if (listenerThread.joinable()) {

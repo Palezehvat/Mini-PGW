@@ -18,7 +18,7 @@
 #include "configmanager.h"
 #include "logger.h"
 #include "session.h"
-#include "cdr.h"
+
 
 /**
  * @namespace nUdpServer
@@ -36,8 +36,11 @@ public:
      * 
      * @param config - configuration for udp server
      * @param logger - instrument for logging some successes or failures
+     * @param sessionManager - responsible for sessions (creation, deletion, logging)
      */
-    UdpServer(const nConfigManager::ConfigServer& config, std::shared_ptr<spdlog::logger> logger);
+    UdpServer(int port, std::string ip, std::shared_ptr<spdlog::logger> logger,
+              std::shared_ptr<nSessionManager::SessionManager> sessionManager,
+              std::shared_ptr<std::atomic<bool>> running);
     /**
      * @brief Runs a UDP server using Berkeley sockets in a separate thread
      */
@@ -51,11 +54,12 @@ private:
     int udpSocket;
     sockaddr_in serverAddr{};
     std::shared_ptr<spdlog::logger> logger;
-    nConfigManager::ConfigServer config;
-    std::atomic<bool> running{false};
+    int port;
+    std::string ip;
+    std::shared_ptr<std::atomic<bool>> running;
+    std::atomic<bool> localRunning;
     std::thread listenerThread;
     std::shared_ptr<nSessionManager::SessionManager> sessionManager;
-    std::shared_ptr<nCDRManager::CDRManager> cdr;
 
     void listenLoop();
 };

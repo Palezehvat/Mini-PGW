@@ -1,6 +1,7 @@
 add_executable(servermain
     main.cpp
     udpserver.cpp
+    httpserver.cpp
     session.cpp
     cdr.cpp
 )
@@ -12,5 +13,6 @@ target_include_directories(servermain PUBLIC
 
 target_link_libraries(servermain PRIVATE 
     spdlog::spdlog
+    httplib
     common
 )

@@ -45,7 +45,7 @@ public:
      * @param blacklist - blacklist of unwanted IMSIs
      */
     SessionManager(std::shared_ptr<spdlog::logger> logger,
-                   std::shared_ptr<nCDRManager::CDRManager> cdr,
+                   std::unique_ptr<nCDRManager::CDRManager> cdr,
                    const int& sessionTimeoutSec,
                    std::vector<std::string> blacklist);
     /**
@@ -55,6 +55,11 @@ public:
      * @return false - another
      */
     bool createSession(const std::string& imsi);
+    /**
+     * @brief Adds a record to the CDR if an attempt
+     * is made to create a session while the server is shut down
+     */
+    void addRecordForRejectSessionAfterShutdown(const std::string& imsi);
     /**
      * @brief Checks if there is already a session with the given IMSI
      * @param imsi - unique identifier
@@ -72,7 +77,7 @@ public:
     void stopAllSessions();
 
 private:
-    std::shared_ptr<nCDRManager::CDRManager> cdr;
+    std::unique_ptr<nCDRManager::CDRManager> cdr;
     mutable std::mutex mtx;
     std::thread cleanup;
     std::unordered_map<std::string, Session> sessions;
