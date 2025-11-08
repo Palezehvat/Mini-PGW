@@ -38,7 +38,7 @@ public:
      * @param logger - instrument for logging some successes or failures
      * @param sessionManager - responsible for sessions (creation, deletion, logging)
      */
-    UdpServer(int port, std::string ip, std::shared_ptr<spdlog::logger> logger,
+    UdpServer(const int& port, const std::string& ip, std::shared_ptr<spdlog::logger> logger,
               std::shared_ptr<nSessionManager::SessionManager> sessionManager,
               std::shared_ptr<std::atomic<bool>> running);
     /**
@@ -62,6 +62,7 @@ private:
     std::shared_ptr<nSessionManager::SessionManager> sessionManager;
 
     void listenLoop();
+    bool checkImsi(const std::string& imsi);
 };
 
 } // nUdpServer

@@ -4,27 +4,18 @@ namespace nLogger {
 
     std::shared_ptr<spdlog::logger> Logger::logger = nullptr;
 
-    void Logger::init(const std::string& nameLogger, const std::string& pathDir,
-                      const std::string& fileForLogs, const bool& isNeedCleanLogFile) {
-        const auto logFilePath = std::filesystem::path(
-            std::filesystem::path(pathDir) / fileForLogs
-        );
+    void Logger::init(const std::string& nameLogger, const std::string& logFilePath,
+                      const bool& isNeedCleanLogFile) {
         try {
-            if (!std::filesystem::exists(pathDir)) {
-                std::cout << logFilePath << std::endl;
-                std::filesystem::create_directories(pathDir);
-            }
             if (isNeedCleanLogFile) {
                 std::ofstream ofs(logFilePath, std::ios::trunc);
                 if (!ofs.is_open()) {
-                    throw std::runtime_error("Failed to open log file: "
-                                            + logFilePath.string());
+                    throw std::runtime_error("Failed to open log file: " + logFilePath);
                 }
             } else {
                 std::ofstream ofs(logFilePath, std::ios::app);
                 if (!ofs.is_open()) {
-                    throw std::runtime_error("Failed to open log file: "
-                                            + logFilePath.string());
+                    throw std::runtime_error("Failed to open log file: " + logFilePath);
                 }
             }
         } catch (const std::filesystem::filesystem_error& e) {

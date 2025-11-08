@@ -40,11 +40,12 @@ public:
     /**
      * @brief Initializing the logger at program startup
      * @param nameLogger - internal name of the logger
-     * @param pathDir - path to the folder where the log file will be located
-     * @param fileForLogs - log file name
+     * @param logFilePath - path to the file where the logger will be located
+     * @param isNeedCleanLogFile - Specifies whether to clear the logs of the
+     * previous session (default, disabled)
      */
-    static void init(const std::string& nameLogger, const std::string& pathDir,
-                     const std::string& fileForLogs, const bool& isNeedCleanLogFile = false);
+    static void init(const std::string& nameLogger, const std::string& logFilePath,
+                     const bool& isNeedCleanLogFile = false);
     /**
      * @brief Get the Logger object
      * @return std::shared_ptr<spdlog::logger> 

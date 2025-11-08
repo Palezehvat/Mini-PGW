@@ -32,5 +32,5 @@ FetchContent_MakeAvailable(httplib)
 
 add_subdirectory(src)
 add_subdirectory(server)
-#add_subdirectory(client)
+add_subdirectory(client)
 #add_subdirectory(tests)

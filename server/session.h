@@ -57,9 +57,9 @@ public:
     bool createSession(const std::string& imsi);
     /**
      * @brief Adds a record to the CDR if an attempt
-     * is made to create a session while the server is shut down
+     * is made to create a session while the server is shut down or imsi is incorrect
      */
-    void addRecordForRejectSessionAfterShutdown(const std::string& imsi);
+    void addRecordForRejectSession(const std::string& imsi);
     /**
      * @brief Checks if there is already a session with the given IMSI
      * @param imsi - unique identifier

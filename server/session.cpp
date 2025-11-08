@@ -93,7 +93,7 @@ void SessionManager::stopAllSessions() {
     }
 }
 
-void SessionManager::addRecordForRejectSessionAfterShutdown(const std::string& imsi) {
+void SessionManager::addRecordForRejectSession(const std::string& imsi) {
     cdr->writeRecord(imsi, "rejected");
 }
 

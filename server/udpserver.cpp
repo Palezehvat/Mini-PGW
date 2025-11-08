@@ -2,8 +2,8 @@
 
 namespace nUdpServer {
 
-UdpServer::UdpServer(int port,
-                     std::string ip,
+UdpServer::UdpServer(const int& port,
+                     const std::string& ip,
                      std::shared_ptr<spdlog::logger> logger,
                      std::shared_ptr<nSessionManager::SessionManager> sessionManager,
                      std::shared_ptr<std::atomic<bool>> running) 
@@ -42,6 +42,14 @@ void UdpServer::start() {
     listenerThread = std::thread(&UdpServer::listenLoop, this);
 }
 
+bool UdpServer::checkImsi(const std::string& imsi) {
+    if (imsi.size() != 15) return false;
+    for (size_t i = 0; i < imsi.size(); ++i) {
+        if (!isdigit(imsi[i])) return false;
+    }
+    return true;
+}
+
 void UdpServer::listenLoop() {
     char buffer[1024];
     sockaddr_in clientAddr;
@@ -67,12 +75,22 @@ void UdpServer::listenLoop() {
         if (!(*running)) {
             if (!imsi.empty()) {
                 std::string response = "rejected\n";
-                logger->info("Trying to create a new session after shut down. IMSI = {}. "
+                logger->warn("Trying to create a new session after shut down. IMSI = {}. "
                              "The response sent was rejected", imsi);
-                sessionManager->addRecordForRejectSessionAfterShutdown(imsi);
+                sessionManager->addRecordForRejectSession(imsi);
                 sendto(udpSocket, response.c_str(), response.size(), 0,
                   (sockaddr*)&clientAddr, sizeClientAddr);
             }
+            continue;
+        }
+
+        if (!checkImsi(imsi)) {
+            std::string response = "rejected\n";
+            logger->warn("The Imsi number doesn't meet the stated requirements. "
+                         "It doesn't have 15 digits. IMSI = {}. ", imsi);
+            sessionManager->addRecordForRejectSession(imsi);
+            sendto(udpSocket, response.c_str(), response.size(), 0,
+                (sockaddr*)&clientAddr, sizeClientAddr);
             continue;
         }
 
