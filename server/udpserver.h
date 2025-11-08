@@ -34,7 +34,8 @@ public:
     /**
      * @brief Construct a new Udp Server object
      * 
-     * @param config - configuration for udp server
+     * @param port - udp server port from configuration file
+     * @param ip - udp server ip from configuration file
      * @param logger - instrument for logging some successes or failures
      * @param sessionManager - responsible for sessions (creation, deletion, logging)
      */

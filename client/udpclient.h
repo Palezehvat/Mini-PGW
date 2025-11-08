@@ -1,12 +1,6 @@
 /**
  * @file udpclient.h
- * @author your name (you@domain.com)
- * @brief 
- * @version 0.1
- * @date 2025-11-07
- * 
- * @copyright Copyright (c) 2025
- * 
+ * @brief UDP server client
  */
 #ifndef UDPCLIENT_H
 #define UDPCLIENT_H
@@ -21,32 +15,31 @@
 #include "logger.h"
 
 /**
- * @brief 
- * 
+ * @namespace nUdpClient 
+ * @brief Contains class UdpClient
  */
 namespace nUdpClient {
 /**
- * @brief 
- * 
+ * @class UdpClient 
+ * @brief Implements UDP client functionality (sending IMSI to the UDP server to create a session)
  */
 class UdpClient {
 
 public:
     /**
-     * @brief Construct a new Udp Client object
-     * 
-     * @param serverPort 
-     * @param serverIp 
-     * @param logger 
+     * @brief Constructor
+     * @param serverPort - udp server port from configuration file
+     * @param serverIp - udp server ip from configuration file
+     * @param logger - instrument for logging some successes or failures
      */
     UdpClient(const int& serverPort,
               const std::string& serverIp,
               std::shared_ptr<spdlog::logger> logger);
     /**
-     * @brief 
+     * @brief Sending to UDP server IMSI for create session
      * 
-     * @param imsi 
-     * @return std::string 
+     * @param imsi - string out of fifteen didgets
+     * @return std::string - two answer options (rejected/created)
      */
     std::string sendMessage(const std::string& imsi);
     /**
