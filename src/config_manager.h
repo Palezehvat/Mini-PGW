@@ -88,7 +88,16 @@ public:
     template <typename T>
     const T& get() const {
         return std::get<T>(config);
-    }  
+    }
+
+    /**
+     * @brief Checks that imsi a string of fifteen digits
+     * 
+     * @param imsi - string of fifteen digits
+     * @return true if imsi a string of fifteen digits
+     * @return false another
+     */
+    static bool checkImsi(const std::string& imsi);
 
 private:
     std::variant<ConfigClient, ConfigServer> config;
@@ -103,11 +112,18 @@ private:
                                              const std::string nameParameter,
                                              NameStruct& serverOrClient,
                                              FieldType NameStruct::*field) {
-        if (data.contains(nameParameter)) {
-            serverOrClient.*field = data[nameParameter].get<FieldType>();
-            logger->debug("The {} parameter required for {} configuration has been read",
-                           nameParameter, name);
-            return;
+        try {
+            if (data.contains(nameParameter)) {
+                serverOrClient.*field = data[nameParameter].get<FieldType>();
+                logger->debug("The {} parameter required for {} configuration has been read",
+                               nameParameter, name);
+                return;
+            }
+        } catch (const std::exception& e) {
+            logger->critical("Problems with get parameter {} from {} configuration. Error: {}",
+                              nameParameter, name, e.what());
+            throw std::runtime_error("Problems with get parameter " + nameParameter + " from " 
+                                    + name + ". Error: " + e.what());
         }
         logger->critical("The {} parameter required for {} configuration was not found",
                           nameParameter, name);

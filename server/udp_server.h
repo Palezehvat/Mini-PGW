@@ -15,9 +15,9 @@
 #include <iostream>
 #include <thread>
 #include <atomic>
-#include "configmanager.h"
 #include "logger.h"
 #include "session.h"
+#include "config_manager.h"
 
 
 /**
@@ -50,6 +50,10 @@ public:
      * @brief Stops the UDP server
      */
     void stop();
+    /**
+     * @brief Destroy the Udp Server object
+     */
+    ~UdpServer();
 
 private:
     int udpSocket;
@@ -63,7 +67,6 @@ private:
     std::shared_ptr<nSessionManager::SessionManager> sessionManager;
 
     void listenLoop();
-    bool checkImsi(const std::string& imsi);
 };
 
 } // nUdpServer

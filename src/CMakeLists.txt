@@ -1,6 +1,6 @@
 add_library(common STATIC
     logger.cpp
-    configmanager.cpp
+    config_manager.cpp
 )
 
 target_include_directories(common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

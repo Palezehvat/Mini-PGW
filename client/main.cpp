@@ -1,13 +1,6 @@
-#include "udpclient.h"
-#include "configmanager.h"
+#include "udp_client.h"
+#include "config_manager.h"
 
-bool checkImsi(const std::string& imsi) {
-    if (imsi.size() != 15) return false;
-    for (size_t i = 0; i < imsi.size(); ++i) {
-        if (!isdigit(imsi[i])) return false;
-    }
-    return true;
-}
 
 int main(int argc, char* argv[]) {
     try {
@@ -20,7 +13,7 @@ int main(int argc, char* argv[]) {
             pathToLogs = argv[1];
             pathToConfig = argv[2];
             imsi = argv[3];
-            if (!checkImsi(imsi)) {
+            if (!nConfigManager::ConfigManager::checkImsi(imsi)) {
                 throw std::runtime_error("The imsi parameter is incorrect. It must be "
                     "15 digits long. The imsi value is currently: " + imsi);
             }

@@ -1,11 +1,11 @@
 #include <atomic>
 #include <csignal>
-#include "udpserver.h"
+#include "udp_server.h"
 #include "session.h"
 #include "cdr.h"
-#include "configmanager.h"
+#include "config_manager.h"
 #include "logger.h"
-#include "httpserver.h"
+#include "http_server.h"
 
 
 std::shared_ptr<std::atomic<bool>> running = std::make_shared<std::atomic<bool>>(true);

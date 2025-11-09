@@ -42,6 +42,10 @@ public:
      * @brief Stops the server in a separate thread
      */
     void stop();
+    /**
+     * @brief Destroy the Http Server object
+     */
+    ~HttpServer();
 private:
 
 private:

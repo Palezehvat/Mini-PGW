@@ -9,7 +9,7 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
-#include "configmanager.h"
+#include "config_manager.h"
 #include "logger.h"
 #include "cdr.h"
 
@@ -68,14 +68,13 @@ public:
      */
     bool hasSession(const std::string& imsi) const;
     /**
-     * @brief Runs a cleaner for expired sessions in a separate thread
-     */
-    void startCleanupThread();
-    /**
      * @brief Stop all sessions
      */
     void stopAllSessions();
-
+    /**
+     * @brief Destroy the Session Manager object
+     */
+    ~SessionManager();
 private:
     std::unique_ptr<nCDRManager::CDRManager> cdr;
     mutable std::mutex mtx;
@@ -88,6 +87,7 @@ private:
 
     void cleanupAllSessions();
     void cleanupExpiredSessions();
+    void startCleanupThread();
 };
 
 } // nSessionManager

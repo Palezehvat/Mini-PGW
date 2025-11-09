@@ -1,4 +1,4 @@
-#include "udpserver.h"
+#include "udp_server.h"
 
 namespace nUdpServer {
 
@@ -42,14 +42,6 @@ void UdpServer::start() {
     listenerThread = std::thread(&UdpServer::listenLoop, this);
 }
 
-bool UdpServer::checkImsi(const std::string& imsi) {
-    if (imsi.size() != 15) return false;
-    for (size_t i = 0; i < imsi.size(); ++i) {
-        if (!isdigit(imsi[i])) return false;
-    }
-    return true;
-}
-
 void UdpServer::listenLoop() {
     char buffer[1024];
     sockaddr_in clientAddr;
@@ -84,7 +76,7 @@ void UdpServer::listenLoop() {
             continue;
         }
 
-        if (!checkImsi(imsi)) {
+        if (!nConfigManager::ConfigManager::checkImsi(imsi)) {
             std::string response = "rejected\n";
             logger->warn("The Imsi number doesn't meet the stated requirements. "
                          "It doesn't have 15 digits. IMSI = {}. ", imsi);
@@ -141,9 +133,45 @@ void UdpServer::stop() {
         listenerThread.join();        
     }
 
-    close(udpSocket);
+    if (udpSocket >= 0) {
+        close(udpSocket);
+    }
 
     logger->info("The UDP server shut down correctly");
+}
+
+UdpServer::~UdpServer() {
+    try {
+        if (localRunning.load()) {
+            logger->info("Destructor for UDP server was called. Stopping UDP server...");
+            localRunning.store(false);
+
+            sockaddr_in selfAddr{};
+            selfAddr.sin_family = AF_INET;
+            selfAddr.sin_port = htons(port);
+            if (inet_pton(AF_INET, ip.c_str(), &selfAddr.sin_addr) < 0) {
+                close(udpSocket);
+                logger->critical("Trying to stop UDP server. Invalid ip address: {}. Error: {}",
+                                ip, strerror(errno));
+                throw std::runtime_error("Trying to stop server. Invalid ip address: "
+                                        + ip
+                                        + ". Error: "
+                                        + strerror(errno));
+            }
+        }
+
+        if (listenerThread.joinable()) {
+            listenerThread.join();        
+        }
+        if (udpSocket >= 0) {
+            close(udpSocket);
+        }
+
+        logger->info("UDP server deleted correctly");
+    } catch (const std::exception& e) {
+        logger->error("An error occurred while attempting to destroy the UDP server object. "
+                      "Error: {}", e.what());
+    }
 }
 
 } // nUdpServer

@@ -1,4 +1,4 @@
-#include "configmanager.h"
+#include "config_manager.h"
 
 namespace nConfigManager {
     
@@ -18,6 +18,17 @@ void ConfigManager::createConfigurationForServer(const nlohmann::json& data) {
     getParameterFromJson(data, "server", "graceful_shutdown_rate", server,
                         &ConfigServer::gracefulShutdownRate);
     getParameterFromJson(data, "server", "blacklist", server, &ConfigServer::blacklist);
+
+    for (auto it = server.blacklist.begin(); it != server.blacklist.end(); ) {
+        if (!checkImsi(*it)) {
+            logger->error(
+                "The IMSI from blacklist doesn't meet the stated requirements. "
+                "It must have 15 digits. This IMSI = {} will be deleted from blacklist.", *it);
+            it = server.blacklist.erase(it);
+        } else {
+            ++it;
+        }
+    }
     config = server;
 }
 
@@ -30,6 +41,14 @@ void ConfigManager::createConfigurationForClient(const nlohmann::json& data) {
     getParameterFromJson(data, "client", "server_port",
                          client, &ConfigClient::serverPort);
     config = client;
+}
+
+bool ConfigManager::checkImsi(const std::string& imsi) {
+    if (imsi.size() != 15) return false;
+    for (size_t i = 0; i < imsi.size(); ++i) {
+        if (!isdigit(imsi[i])) return false;
+    }
+    return true;
 }
 
 void ConfigManager::load(const std::string& path) {

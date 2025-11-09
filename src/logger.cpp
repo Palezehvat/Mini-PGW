@@ -19,7 +19,7 @@ namespace nLogger {
                 }
             }
         } catch (const std::filesystem::filesystem_error& e) {
-            throw std::runtime_error("Failed to create logging directory. Reason: "
+            throw std::runtime_error("Failed to create logging file or write into file. Reason: "
                                     + std::string(e.what()));
         }
 

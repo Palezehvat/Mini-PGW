@@ -97,4 +97,13 @@ void SessionManager::addRecordForRejectSession(const std::string& imsi) {
     cdr->writeRecord(imsi, "rejected");
 }
 
+SessionManager::~SessionManager() {
+    try {
+        logger->debug("Destructor called for SessionManager. StopAllSession will be called again");
+        stopAllSessions();
+    } catch (const std::exception& e) {
+        logger->error("Exception in SessionManager destructor. Error: {}", e.what());
+    }
+}
+
 } // nSessionManager

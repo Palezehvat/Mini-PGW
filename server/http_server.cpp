@@ -1,4 +1,4 @@
-#include "httpserver.h"
+#include "http_server.h"
 
 namespace nHttpServer {
 
@@ -44,6 +44,18 @@ void HttpServer::stop() {
 
     if (serverThread.joinable()) {
         serverThread.join();
+    }
+}
+
+HttpServer::~HttpServer() {
+    try {
+        logger->debug("Destructor called for HTTP server");
+
+        stop();
+
+        logger->info("HTTP server destroyed cleanly");
+    } catch (const std::exception& e) {
+        logger->error("Exception in HTTP server destructor. Error: {}", e.what());
     }
 }
 
