@@ -1,0 +1,38 @@
+name: Tests for mini-pgw
+on: [push, pull_request]
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+      - name: Download dependencies
+        run: |
+              sudo apt-get update
+              sudo apt-get install -y \
+                build-essential \
+                cmake git
+      - name: Create directory for build
+        run: mkdir build
+      - name: Build project
+        run: cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+      - name: Download dependencies
+        run: |
+              sudo apt-get update
+              sudo apt-get install -y \
+                build-essential \
+                cmake git
+      - name: Create directory for build
+        run: mkdir build
+      - name: Build project
+        run: cd build && cmake .. && make
+      - name: Start Tests
+        run: ./build/tests/tests
