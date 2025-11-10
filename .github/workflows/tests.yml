@@ -35,4 +35,4 @@ jobs:
       - name: Build project
         run: cd build && cmake .. && make
       - name: Start Tests
-        run: ./tests/tests
+        run: ./build/tests/tests
