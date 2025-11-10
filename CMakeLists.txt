@@ -30,9 +30,9 @@ FetchContent_Declare(
     GIT_TAG v0.27.0
 )
 
-FetchContent_MakeAvailable(httplib)
-
 add_compile_definitions(CPPHTTPLIB_ZSTD_SUPPORT=0)
+
+FetchContent_MakeAvailable(httplib)
 
 FetchContent_Declare(
     googletest 
