@@ -22,7 +22,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(json)
 
-set(CPPHTTPLIB_ZSTD_SUPPORT OFF CACHE BOOL "Disable Zstd" FORCE)
+set(HTTPLIB_USE_ZSTD_IF_AVAILABLE OFF CACHE BOOL "Disable Zstd" FORCE)
 
 FetchContent_Declare(
     httplib
