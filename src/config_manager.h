@@ -61,6 +61,9 @@ struct ConfigClient
     int serverPort;
 };
 
+std::vector<uint8_t> encodeFromStringToBCD(const std::string& imsi);
+
+std::string decodeFromBCDToString(std::vector<uint8_t> bcd, size_t sizeBCD);
 
 /**
  * @class ConfigManager

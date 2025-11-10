@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <cstring>
 #include "logger.h"
+#include "config_manager.h"
 
 /**
  * @namespace nUdpClient 

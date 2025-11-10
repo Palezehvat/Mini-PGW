@@ -36,7 +36,9 @@ namespace nUdpClient {
     std::string UdpClient::sendMessage(const std::string& imsi) {
         logger->debug("Send message to server");
 
-        ssize_t resultSend = sendto(udpSocket, imsi.c_str(), imsi.size(), 0,
+        std::vector<uint8_t> imsiBCD = nConfigManager::encodeFromStringToBCD(imsi);
+
+        ssize_t resultSend = sendto(udpSocket, imsiBCD.data(), imsiBCD.size(), 0,
                         (sockaddr*)&serverAddr, sizeof(serverAddr));
 
         if (resultSend < 0) {
@@ -51,7 +53,7 @@ namespace nUdpClient {
         sockaddr_in fromAddr;
         socklen_t sizeFromAddr = sizeof(fromAddr);
 
-        ssize_t sizeRecvFrom = recvfrom(udpSocket, buffer, sizeof(buffer), 
+        ssize_t sizeRecvFrom = recvfrom(udpSocket, buffer, sizeof(buffer) - 1, 
                                     0, (sockaddr*)&fromAddr, &sizeFromAddr);
 
         if (sizeRecvFrom < 0) {

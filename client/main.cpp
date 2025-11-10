@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
         } else {
             throw std::runtime_error("The number of arguments does not meet the requirements. "
                                      "There must be 3 or 4 arguments. Currently set: "
-                                     + std::to_string(argc) + "arguments");
+                                     + std::to_string(argc) + " arguments");
         }
 
         std::cout << "\nThe following arguments were passed: \n"

@@ -43,23 +43,22 @@ void UdpServer::start() {
 }
 
 void UdpServer::listenLoop() {
-    char buffer[1024];
+    std::vector<uint8_t> buffer(1024);
     sockaddr_in clientAddr;
     socklen_t sizeClientAddr = sizeof(clientAddr);
 
     logger->info("UDP server started and waiting for data");
 
     while (localRunning) {
-        ssize_t sizeRecvFrom = recvfrom(udpSocket, buffer, sizeof(buffer), 
+        ssize_t sizeRecvFrom = recvfrom(udpSocket, buffer.data(), buffer.size(), 
                                     0, (sockaddr*)&clientAddr, &sizeClientAddr);
         if (sizeRecvFrom < 0) {
             logger->error("Recvfrom failed: {}", strerror(errno));
             continue;
         }
 
-        buffer[sizeRecvFrom] = '\0';
-        std::string imsi(buffer);
-
+        std::string imsi = nConfigManager::decodeFromBCDToString(buffer, sizeRecvFrom);
+        std::cout << imsi << std::endl;
         if (!imsi.empty() && std::isspace(static_cast<unsigned char>(imsi.back()))) {
             imsi.pop_back();
         }
