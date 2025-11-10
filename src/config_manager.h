@@ -60,9 +60,20 @@ struct ConfigClient
     std::string serverIp;
     int serverPort;
 };
-
+/**
+ * @brief Encode string from ASCII format to format BCD
+ * 
+ * @param imsi - string of fifteen digits
+ * @return std::vector<uint8_t> IMSI in BCD format
+ */
 std::vector<uint8_t> encodeFromStringToBCD(const std::string& imsi);
-
+/**
+ * @brief Decode from BCD format IMSI to ASCII
+ * 
+ * @param bcd - IMSI in BCD format
+ * @param sizeBCD - size IMSI
+ * @return std::string IMSI in ASCII format
+ */
 std::string decodeFromBCDToString(std::vector<uint8_t> bcd, size_t sizeBCD);
 
 /**

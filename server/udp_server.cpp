@@ -64,7 +64,7 @@ void UdpServer::listenLoop() {
 
         if (!(*running)) {
             if (!imsi.empty()) {
-                std::string response = "rejected\n";
+                std::string response = "rejected";
                 logger->warn("Trying to create a new session after shut down. IMSI = {}. "
                              "The response sent was rejected", imsi);
                 sessionManager->addRecordForRejectSession(imsi);
@@ -75,7 +75,7 @@ void UdpServer::listenLoop() {
         }
 
         if (!nConfigManager::ConfigManager::checkImsi(imsi)) {
-            std::string response = "rejected\n";
+            std::string response = "rejected";
             logger->warn("The Imsi number doesn't meet the stated requirements. "
                          "It doesn't have 15 digits. IMSI = {}. ", imsi);
             sessionManager->addRecordForRejectSession(imsi);
@@ -91,14 +91,14 @@ void UdpServer::listenLoop() {
         std::string response = "";
         try {
             if (sessionManager->createSession(imsi)) {
-                response = "created\n";
+                response = "created";
             } else {
-                response = "rejected\n";
+                response = "rejected";
             }
         } catch (const std::exception& e) {
             logger->error("Problem creating session. Error: {}", e.what());
         }
-        if (response == "") response = "rejected\n";
+        if (response == "") response = "rejected";
         sendto(udpSocket, response.c_str(), response.size(), 0,
               (sockaddr*)&clientAddr, sizeClientAddr);
         logger->info("Send to {}:{} that session created", inet_ntoa(clientAddr.sin_addr),

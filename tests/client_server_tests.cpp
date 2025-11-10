@@ -43,14 +43,14 @@ TEST(httpServer, isCheckSubscriberAndStopCorrect) {
     
         if (auto res = client.Get("/check_subscriber?imsi=123456789012346")) {
             EXPECT_EQ(res->status, 200);
-            EXPECT_EQ(res->body, "active\n");
+            EXPECT_EQ(res->body, "active");
         } else {
             FAIL() << "Failed to get result for command /check_subscriber from http server";
         }
     
         if (auto res = client.Get("/check_subscriber?imsi=123456789012345")) {
             EXPECT_EQ(res->status, 200);
-            EXPECT_EQ(res->body, "not active\n");
+            EXPECT_EQ(res->body, "not active");
         } else {
             FAIL() << "Failed to get result for command /check_subscriber from http server for "
                       "non-existent user";
@@ -58,7 +58,7 @@ TEST(httpServer, isCheckSubscriberAndStopCorrect) {
     
         if (auto res = client.Post("/stop")) {
             EXPECT_EQ(res->status, 200);
-            EXPECT_EQ(res->body, "stopping\n");
+            EXPECT_EQ(res->body, "stopping");
         } else {
             FAIL() << "Failed to stop server by command";
         }
@@ -112,7 +112,7 @@ TEST(udpServerClient, isServerRespondsCreatedToValidIMSI) {
     EXPECT_NO_THROW(
         response = client->sendMessage("123456789012346");
     );
-    EXPECT_EQ(response, "created\n");
+    EXPECT_EQ(response, "created");
     running->store(false);
     EXPECT_NO_THROW(
         udpServer->stop();
@@ -157,17 +157,17 @@ TEST(udpServerClient, isServerRespondsRejectedToValidIMSI) {
     EXPECT_NO_THROW(
         response = client->sendMessage("123456789012345");
     );
-    EXPECT_EQ(response, "rejected\n");
+    EXPECT_EQ(response, "rejected");
 
     EXPECT_NO_THROW(
         response = client->sendMessage("123456789012346");
     );
-    EXPECT_EQ(response, "created\n");
+    EXPECT_EQ(response, "created");
 
     EXPECT_NO_THROW(
         response = client->sendMessage("123456789012346");
     );
-    EXPECT_EQ(response, "rejected\n");
+    EXPECT_EQ(response, "rejected");
 
     running->store(false);
     EXPECT_NO_THROW(

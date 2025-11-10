@@ -14,7 +14,7 @@ HttpServer::HttpServer(std::shared_ptr<spdlog::logger> logger,
 void HttpServer::start() {
     serverThread = std::thread([this]() {
         server->Post("/stop", [this](const httplib::Request& req, httplib::Response& res) {
-            res.set_content("stopping\n", "text/plain");
+            res.set_content("stopping", "text/plain");
             logger->warn("HTTP: stop command received");
             *running = false;
         });
@@ -23,10 +23,10 @@ void HttpServer::start() {
                                                 httplib::Response& res){
             std::string imsi = req.get_param_value("imsi");
             if (sessionManager->hasSession(imsi)) {
-                res.set_content("active\n", "text/plain");
+                res.set_content("active", "text/plain");
                 logger->info("HTTP: check_subscriber IMSI = {}. Result: active", imsi);
             } else {
-                res.set_content("not active\n", "text/plain");
+                res.set_content("not active", "text/plain");
                 logger->info("HTTP: check_subscriber IMSI = {}. Result: not active", imsi);
             }
         });
