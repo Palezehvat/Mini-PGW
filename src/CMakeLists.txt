@@ -9,3 +9,5 @@ target_link_libraries(common PUBLIC
     spdlog::spdlog
     nlohmann_json::nlohmann_json
 )
+
+add_definitions(-DPROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}")

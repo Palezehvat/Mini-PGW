@@ -67,12 +67,17 @@ int main(int argc, char* argv[]) {
             logger,
             serverConfig.cdrFile
         );
-
+        if (serverConfig.gracefulShutdownRate <= 0) {
+            logger->error("Invalid number of sessions specified during cleanup after shutdown: {}."
+                          "This value will be changed to 10", serverConfig.gracefulShutdownRate);
+            serverConfig.gracefulShutdownRate = 10;
+        }
         auto sessionManager = std::make_shared<nSessionManager::SessionManager>(
             logger,
             std::move(cdr),
             serverConfig.sessionTimeoutSec,
-            serverConfig.blacklist
+            serverConfig.blacklist,
+            serverConfig.gracefulShutdownRate
         );
         
         std::unique_ptr<nUdpServer::UdpServer> udpServer = std::make_unique<nUdpServer::UdpServer>(
@@ -103,16 +108,9 @@ int main(int argc, char* argv[]) {
             std::this_thread::sleep_for(std::chrono::milliseconds(200));    
         }
 
-        std::cout << "UDP and HTTP servers will be stop in " << serverConfig.gracefulShutdownRate
-                  << " seconds" << std::endl;
-
-        logger->info("The server will not accept any new requests for "
-            "{} seconds and will then be stopped", serverConfig.gracefulShutdownRate);
-
-        for (int i = serverConfig.gracefulShutdownRate; i > 0; --i) {
-            logger->debug("Graceful shutdown: {} seconds remaining", i);
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
+        logger->info("The server will not accept any new requests and will then be stopped");
+        std::cout << "The server will not accept any new requests and will then be stopped"
+                  << std::endl;
 
         httpServer->stop();
         udpServer->stop();

@@ -5,9 +5,11 @@ namespace nSessionManager {
 SessionManager::SessionManager(std::shared_ptr<spdlog::logger> logger,
                                std::unique_ptr<nCDRManager::CDRManager> cdr,
                                const int& sessionTimeoutSec,
-                               std::vector<std::string> blacklist) :
+                               std::vector<std::string> blacklist,
+                               const int& gracefulShutdownRate) :
                                logger(logger), sessionTimeoutSec(sessionTimeoutSec),
-                               blacklist(blacklist), cdr(std::move(cdr)) {
+                               blacklist(blacklist), cdr(std::move(cdr)),
+                               gracefulShutdownRate(gracefulShutdownRate) {
     running.store(true);
     startCleanupThread();
     logger->debug("SessionManager initialized");
@@ -61,9 +63,15 @@ void SessionManager::cleanupExpiredSessions() {
 
 void SessionManager::cleanupAllSessions() {
     std::lock_guard<std::mutex> lock(mtx);
+    int count = 0;
     for (auto it = sessions.begin(); it != sessions.end(); ++it) {
         cdr->writeRecord(it->first, "removed");
         logger->debug("All sessions are being deleted. Session {} removed", it->first);
+        ++count;
+        if (count >= gracefulShutdownRate) {
+            count = 0;
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
     }
     sessions.clear();
     logger->info("All sessions cleared");

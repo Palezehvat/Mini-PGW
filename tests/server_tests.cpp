@@ -77,7 +77,8 @@ TEST(sessions, isInitializeSessionManagerCorrect) {
             dummyLogger,
             std::move(cdr),
             10,
-            std::vector<std::string>({"123456789012345"})
+            std::vector<std::string>({"123456789012345"}),
+            10
         );
         sessions->stopAllSessions();
     );
@@ -91,7 +92,8 @@ TEST(sessions, isCreateSessionSuccess) {
         dummyLogger,
         std::move(cdr),
         10,
-        std::vector<std::string>({"123456789012345"})
+        std::vector<std::string>({"123456789012345"}),
+        10
     );
     EXPECT_TRUE(sessions->createSession("123456789012346"));
     EXPECT_TRUE(sessions->hasSession("123456789012346"));
@@ -108,7 +110,8 @@ TEST(sessions, isCreateSessionDuplicateRejected) {
         dummyLogger,
         std::move(cdr),
         10,
-        std::vector<std::string>({"123456789012345"})
+        std::vector<std::string>({"123456789012345"}),
+        10
     );
     EXPECT_TRUE(sessions->createSession("123456789012346"));
     EXPECT_FALSE(sessions->createSession("123456789012346"));
@@ -126,7 +129,8 @@ TEST(sessions, isSessionRejectedIfItInBlacklist) {
         dummyLogger,
         std::move(cdr),
         10,
-        std::vector<std::string>({"123456789012345"})
+        std::vector<std::string>({"123456789012345"}),
+        10
     );
     EXPECT_FALSE(sessions->createSession("123456789012345"));
     EXPECT_FALSE(sessions->hasSession("123456789012345"));
@@ -143,7 +147,8 @@ TEST(sessions, isSessionsCleanupAfterExpired) {
         dummyLogger,
         std::move(cdr),
         1,
-        std::vector<std::string>({"123456789012345"})
+        std::vector<std::string>({"123456789012345"}),
+        10
     );
     EXPECT_TRUE(sessions->createSession("123456789012346"));
     std::this_thread::sleep_for(std::chrono::seconds(3));
@@ -161,7 +166,8 @@ TEST(sessions, isStopAllSessionsAfterStopSessionManager) {
         dummyLogger,
         std::move(cdr),
         8,
-        std::vector<std::string>({"123456789012345"})
+        std::vector<std::string>({"123456789012345"}),
+        10
     );
     EXPECT_TRUE(sessions->createSession("123456789012346"));
     sessions->stopAllSessions();
@@ -179,7 +185,8 @@ TEST(udpServer, isInitializationUDPServerCorrect) {
         dummyLogger,
         std::move(cdr),
         5,
-        std::vector<std::string>({"123456789012345"})
+        std::vector<std::string>({"123456789012345"}),
+        10
     );
     std::shared_ptr<nUdpServer::UdpServer> udpServer;
     std::shared_ptr<std::atomic<bool>> running = std::make_shared<std::atomic<bool>>(true);
@@ -205,7 +212,8 @@ TEST(udpServer, isInitializationUDPServerIncorrectWithWrongParams) {
         dummyLogger,
         std::move(cdr),
         5,
-        std::vector<std::string>({"123456789012345"})
+        std::vector<std::string>({"123456789012345"}),
+        10
     );
     std::shared_ptr<nUdpServer::UdpServer> udpServer;
     std::shared_ptr<std::atomic<bool>> running = std::make_shared<std::atomic<bool>>(true);
@@ -231,7 +239,8 @@ TEST(httpServer, isInitializationHTTPServerCorrect) {
         dummyLogger,
         std::move(cdr),
         5,
-        std::vector<std::string>({"123456789012345"})
+        std::vector<std::string>({"123456789012345"}),
+        10
     );
     std::shared_ptr<std::atomic<bool>> running = std::make_shared<std::atomic<bool>>(true);
     std::shared_ptr<nHttpServer::HttpServer> httpServer;

@@ -42,8 +42,7 @@ int main(int argc, char* argv[]) {
         nLogger::Logger::init("client", pathToLogs, isNeedClearLogFile);
         std::shared_ptr<spdlog::logger> logger = nLogger::Logger::getLogger();
         
-        logger->info("Starting read config for UDP client");
-
+        logger->info("Starting read config for UDP client with IMSI = {}", imsi);
 
         nConfigManager::ConfigManager configManager(logger);
         configManager.load(pathToConfig);

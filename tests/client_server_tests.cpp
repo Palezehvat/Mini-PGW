@@ -18,7 +18,8 @@ TEST(httpServer, isCheckSubscriberAndStopCorrect) {
             dummyLogger,
             std::move(cdr),
             100,
-            std::vector<std::string>({"123456789012345"})
+            std::vector<std::string>({"123456789012345"}),
+            10
         );
         std::shared_ptr<std::atomic<bool>> running = std::make_shared<std::atomic<bool>>(true);
         
@@ -81,7 +82,8 @@ TEST(udpServerClient, isServerRespondsCreatedToValidIMSI) {
         dummyLogger,
         std::move(cdr),
         5,
-        std::vector<std::string>({"123456789012345"})
+        std::vector<std::string>({"123456789012345"}),
+        10
     );
     auto running = std::make_shared<std::atomic<bool>>(true);
 
@@ -125,7 +127,8 @@ TEST(udpServerClient, isServerRespondsRejectedToValidIMSI) {
         dummyLogger,
         std::move(cdr),
         100,
-        std::vector<std::string>({"123456789012345"})
+        std::vector<std::string>({"123456789012345"}),
+        10
     );
     auto running = std::make_shared<std::atomic<bool>>(true);
 

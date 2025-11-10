@@ -14,6 +14,7 @@ namespace nConfigManager {
         getParameterFromJson(data, "server", "session_timeout_sec", server, 
                             &ConfigServer::sessionTimeoutSec);
         getParameterFromJson(data, "server", "cdr_file", server, &ConfigServer::cdrFile);
+        server.cdrFile = std::string(PROJECT_SOURCE_DIR) + "/" + server.cdrFile;
         getParameterFromJson(data, "server", "http_port", server, &ConfigServer::httpPort);
         getParameterFromJson(data, "server", "graceful_shutdown_rate", server,
                             &ConfigServer::gracefulShutdownRate);

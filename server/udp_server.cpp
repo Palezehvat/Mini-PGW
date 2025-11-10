@@ -58,7 +58,6 @@ void UdpServer::listenLoop() {
         }
 
         std::string imsi = nConfigManager::decodeFromBCDToString(buffer, sizeRecvFrom);
-        std::cout << imsi << std::endl;
         if (!imsi.empty() && std::isspace(static_cast<unsigned char>(imsi.back()))) {
             imsi.pop_back();
         }
@@ -97,7 +96,7 @@ void UdpServer::listenLoop() {
                 response = "rejected\n";
             }
         } catch (const std::exception& e) {
-            logger->error("Problem creating session. Error: {}", std::string(e.what()));
+            logger->error("Problem creating session. Error: {}", e.what());
         }
         if (response == "") response = "rejected\n";
         sendto(udpSocket, response.c_str(), response.size(), 0,

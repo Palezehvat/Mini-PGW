@@ -47,7 +47,8 @@ public:
     SessionManager(std::shared_ptr<spdlog::logger> logger,
                    std::unique_ptr<nCDRManager::CDRManager> cdr,
                    const int& sessionTimeoutSec,
-                   std::vector<std::string> blacklist);
+                   std::vector<std::string> blacklist,
+                   const int& gracefulShutdownRate);
     /**
      * @brief Create a new session
      * @param imsi - unique identifier
@@ -84,6 +85,7 @@ private:
     std::vector<std::string> blacklist;
     std::shared_ptr<spdlog::logger> logger;
     std::atomic<bool> running{false};
+    int gracefulShutdownRate;
 
     void cleanupAllSessions();
     void cleanupExpiredSessions();
